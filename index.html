@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#7a3e00">
+<title>Druckrechner CO₂ – Schankanlage</title>
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+  :root{
+    --bg:#1c1410; --card:#2a201a; --card2:#332720; --accent:#e8a33d;
+    --accent2:#c5781b; --text:#f4ead9; --muted:#b59c82; --line:#46362b;
+    --good:#7bc47f;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:linear-gradient(180deg,#241812,#1c1410 40%);
+    color:var(--text);min-height:100vh;
+    padding:env(safe-area-inset-top) 14px calc(env(safe-area-inset-bottom) + 24px);
+  }
+  header{text-align:center;padding:22px 0 10px}
+  header h1{margin:0;font-size:1.45rem;letter-spacing:.3px}
+  header .sub{color:var(--muted);font-size:.85rem;margin-top:4px}
+  .beer{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    margin:14px auto;max-width:520px;overflow:hidden;
+    box-shadow:0 4px 18px rgba(0,0,0,.35);
+  }
+  .beer summary{
+    list-style:none;cursor:pointer;padding:14px 16px;display:flex;
+    align-items:center;justify-content:space-between;gap:10px;
+    background:linear-gradient(90deg,var(--accent2),#8a4f12);
+  }
+  .beer summary::-webkit-details-marker{display:none}
+  .beer summary .name{font-weight:700;font-size:1.05rem;flex:1;display:flex;align-items:center;gap:8px}
+  .beer summary input.title{
+    background:transparent;border:none;color:#fff;font-weight:700;font-size:1.05rem;
+    width:100%;outline:none;border-bottom:1px dashed rgba(255,255,255,.35);padding:2px 0;
+  }
+  .beer summary .result{
+    background:rgba(0,0,0,.28);border-radius:10px;padding:6px 10px;
+    font-weight:700;white-space:nowrap;font-size:1rem;color:#fff;
+  }
+  .beer summary .result small{display:block;font-weight:400;font-size:.62rem;opacity:.8;text-align:right}
+  .body{padding:14px 16px 18px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:5px}
+  .field .unit{color:var(--accent);font-weight:600}
+  input[type=number]{
+    width:100%;background:var(--card2);border:1px solid var(--line);color:var(--text);
+    border-radius:10px;padding:11px 12px;font-size:1.05rem;outline:none;
+  }
+  input[type=number]:focus{border-color:var(--accent)}
+  .toggle{display:flex;gap:8px}
+  .toggle button{
+    flex:1;background:var(--card2);border:1px solid var(--line);color:var(--muted);
+    padding:11px;border-radius:10px;font-size:1rem;cursor:pointer;
+  }
+  .toggle button.active{background:var(--accent);color:#241812;border-color:var(--accent);font-weight:700}
+  .out{display:flex;gap:10px;margin-top:6px}
+  .out .box{
+    flex:1;background:var(--card2);border:1px solid var(--line);border-radius:12px;
+    padding:12px;text-align:center;
+  }
+  .out .box .lbl{font-size:.72rem;color:var(--muted)}
+  .out .box .val{font-size:1.5rem;font-weight:800;margin-top:3px}
+  .out .box.main .val{color:var(--accent)}
+  .out .box .u{font-size:.8rem;color:var(--muted);font-weight:400}
+  .formula{
+    max-width:520px;margin:18px auto 0;background:var(--card);border:1px solid var(--line);
+    border-radius:14px;padding:14px 16px;color:var(--muted);font-size:.8rem;line-height:1.5;
+  }
+  .formula b{color:var(--text)}
+  code{background:#0000003d;padding:1px 5px;border-radius:5px;color:var(--accent);font-size:.78rem}
+  .reset{display:block;margin:18px auto 0;background:none;border:1px solid var(--line);
+    color:var(--muted);padding:9px 16px;border-radius:10px;cursor:pointer}
+</style>
+</head>
+<body>
+<header>
+  <h1>🍺 Druckrechner CO₂</h1>
+  <div class="sub">Betriebsdruck für Schankanlage · 4 Biere</div>
+</header>
+
+<div id="app"></div>
+
+<div class="formula">
+  <b>Formeln</b> (originalgetreu zur Excel, je nach Bier):<br>
+  <b>Bier 1:</b> Sättigungsdruck = <code>0,51 + 0,076 · T</code> · Betriebsdruck = <code>S + 0,1·H + 0,05·(L + Kühl·0,05)</code><br>
+  <b>Bier 2–4:</b> Sättigungsdruck = <code>0,52 + 0,065 · T</code> · Betriebsdruck = <code>S + 0,1·H + 0,05·(L + Kühl)</code><br>
+  Kühlschlange: <code>ja → 14</code>, sonst <code>0</code>. &nbsp;T=Temperatur, H=Höhenmeter, L=Leitungslänge.
+</div>
+
+<button class="reset" onclick="resetAll()">Alle Werte zurücksetzen</button>
+
+<script>
+// Konfiguration je Bier (originalgetreu zur Excel)
+const BEERS = [
+  {satA:0.51, satB:0.076, coilInner:true },   // Bier 1
+  {satA:0.52, satB:0.065, coilInner:false},   // Bier 2
+  {satA:0.52, satB:0.065, coilInner:false},   // Bier 3
+  {satA:0.52, satB:0.065, coilInner:false},   // Bier 4
+];
+const DEF = {name:'', temp:'', hoehe:'', laenge:'', kuehl:false};
+
+function load(){ try{ return JSON.parse(localStorage.getItem('brau')||'null'); }catch(e){ return null; } }
+function save(){ localStorage.setItem('brau', JSON.stringify(state)); }
+
+let state = load() || BEERS.map((_,i)=>({...DEF, name:'Bier '+(i+1)}));
+
+function calc(i){
+  const s = state[i], cfg = BEERS[i];
+  const T = parseFloat(s.temp)||0, H = parseFloat(s.hoehe)||0, L = parseFloat(s.laenge)||0;
+  const kuehl = s.kuehl ? 14 : 0;
+  const sat = cfg.satA + cfg.satB * T;
+  const coilTerm = cfg.coilInner ? kuehl*0.05 : kuehl;
+  const betrieb = sat + 0.1*H + 0.05*(L + coilTerm);
+  return {sat, betrieb};
+}
+
+function fmt(x){ return x.toLocaleString('de-DE',{minimumFractionDigits:2, maximumFractionDigits:2}); }
+
+function render(){
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+  state.forEach((s,i)=>{
+    const r = calc(i);
+    const d = document.createElement('details');
+    d.className = 'beer';
+    if(i===0) d.open = true;
+    d.innerHTML = `
+      <summary>
+        <span class="name"><input class="title" value="${escapeHtml(s.name)}" data-i="${i}" data-k="name"
+               onclick="event.stopPropagation()"></span>
+        <span class="result">${fmt(r.betrieb)} bar<small>Betriebsdruck</small></span>
+      </summary>
+      <div class="body">
+        <div class="field">
+          <label>Temperatur <span class="unit">°C</span></label>
+          <input type="number" inputmode="decimal" step="0.1" value="${s.temp}" data-i="${i}" data-k="temp" placeholder="z.B. 10">
+        </div>
+        <div class="field">
+          <label>Höhenmeter <span class="unit">m</span></label>
+          <input type="number" inputmode="decimal" step="0.1" value="${s.hoehe}" data-i="${i}" data-k="hoehe" placeholder="z.B. 1">
+        </div>
+        <div class="field">
+          <label>Leitungslänge <span class="unit">m</span></label>
+          <input type="number" inputmode="decimal" step="0.1" value="${s.laenge}" data-i="${i}" data-k="laenge" placeholder="z.B. 10">
+        </div>
+        <div class="field">
+          <label>Kühlschlange nutzen?</label>
+          <div class="toggle">
+            <button class="${s.kuehl?'active':''}" data-i="${i}" data-k="kuehl" data-v="1">ja</button>
+            <button class="${!s.kuehl?'active':''}" data-i="${i}" data-k="kuehl" data-v="0">nein</button>
+          </div>
+        </div>
+        <div class="out">
+          <div class="box"><div class="lbl">Sättigungsdruck</div><div class="val">${fmt(r.sat)} <span class="u">bar</span></div></div>
+          <div class="box main"><div class="lbl">Betriebsdruck</div><div class="val">${fmt(r.betrieb)} <span class="u">bar</span></div></div>
+        </div>
+      </div>`;
+    app.appendChild(d);
+  });
+  bind();
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function bind(){
+  document.querySelectorAll('input[data-k]').forEach(el=>{
+    el.addEventListener('input', e=>{
+      const i = +el.dataset.i, k = el.dataset.k;
+      state[i][k] = el.value;
+      save();
+      if(k!=='name') render();        // Titel-Feld nicht neu rendern (Fokus halten)
+      else updateName(i, el.value);
+    });
+  });
+  document.querySelectorAll('button[data-k="kuehl"]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const i = +el.dataset.i;
+      state[i].kuehl = el.dataset.v==='1';
+      save(); render();
+    });
+  });
+}
+
+function updateName(i, val){
+  // nur Anzeige aktualisieren, Re-Render vermeiden während Tippen
+}
+
+function resetAll(){
+  if(!confirm('Alle Eingaben zurücksetzen?')) return;
+  state = BEERS.map((_,i)=>({...DEF, name:'Bier '+(i+1)}));
+  save(); render();
+}
+
+render();
+
+// Service Worker für Offline-Betrieb (optional, nur wenn gehostet)
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
