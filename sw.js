@@ -1,5 +1,5 @@
 // Service Worker – macht die App offline-fähig, wenn sie über http(s) gehostet wird.
-const CACHE = 'druckrechner-v2';
+const CACHE = 'druckrechner-v3';
 const FILES = ['./index.html', './manifest.webmanifest', './logo.png'];
 
 self.addEventListener('install', e => {

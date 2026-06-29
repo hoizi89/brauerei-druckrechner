@@ -104,12 +104,12 @@ function load(){ try{ return {...DEF, ...(JSON.parse(localStorage.getItem('brau1
 function save(){ localStorage.setItem('brau1', JSON.stringify(state)); }
 let state = load();
 
-// Formel (wie Bier 1 in der Excel)
+// Formel (wie Blatt "berechnung_fertig" in der Excel)
 function calc(){
   const T = parseFloat(state.temp)||0, H = parseFloat(state.hoehe)||0, L = parseFloat(state.laenge)||0;
   const kuehl = state.kuehl ? 14 : 0;
-  const sat = 0.51 + 0.076 * T;
-  const betrieb = sat + 0.1*H + 0.05*(L + kuehl*0.05);
+  const sat = 0.52 + 0.07 * T;
+  const betrieb = sat + 0.1*H + 0.05*(L + kuehl);
   return {sat, betrieb};
 }
 function fmt(x){ return x.toLocaleString('de-DE',{minimumFractionDigits:2, maximumFractionDigits:2}); }
