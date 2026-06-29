@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "PowerShell(Start-Process \"D:\\\\ProjektePrivat\\\\BrauereiApp\\\\index.html\"; \"geöffnet\")"
-    ]
-  }
-}
