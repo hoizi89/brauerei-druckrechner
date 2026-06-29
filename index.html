@@ -82,7 +82,14 @@
 <button class="reset" onclick="resetAll()">Alle Werte zurücksetzen</button>
 
 <script>
-const COUNT = 4;
+// Formel-Konstanten je Bier (originalgetreu zur Excel, je Position unterschiedlich – Absicht)
+const BEERS = [
+  {satA:0.51, satB:0.076, coilInner:true },   // Bier 1
+  {satA:0.52, satB:0.065, coilInner:false},   // Bier 2
+  {satA:0.52, satB:0.065, coilInner:false},   // Bier 3
+  {satA:0.52, satB:0.065, coilInner:false},   // Bier 4
+];
+const COUNT = BEERS.length;
 const DEF = {name:'', temp:'', hoehe:'', laenge:'', kuehl:false};
 
 function load(){ try{ return JSON.parse(localStorage.getItem('brau')||'null'); }catch(e){ return null; } }
@@ -91,13 +98,14 @@ function save(){ localStorage.setItem('brau', JSON.stringify(state)); }
 function defaults(){ return Array.from({length:COUNT},(_,i)=>({...DEF, name:'Bier '+(i+1)})); }
 let state = load() || defaults();
 
-// Einheitliche Formel für alle Biere
+// Formel je Bier (Bier 1 weicht ab – wie in der Excel)
 function calc(i){
-  const s = state[i];
+  const s = state[i], cfg = BEERS[i];
   const T = parseFloat(s.temp)||0, H = parseFloat(s.hoehe)||0, L = parseFloat(s.laenge)||0;
   const kuehl = s.kuehl ? 14 : 0;
-  const sat = 0.52 + 0.065 * T;                 // Sättigungsdruck (bar)
-  const betrieb = sat + 0.1*H + 0.05*(L + kuehl); // Betriebsdruck (bar)
+  const sat = cfg.satA + cfg.satB * T;                  // Sättigungsdruck (bar)
+  const coilTerm = cfg.coilInner ? kuehl*0.05 : kuehl;
+  const betrieb = sat + 0.1*H + 0.05*(L + coilTerm);    // Betriebsdruck (bar)
   return {sat, betrieb};
 }
 
