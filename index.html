@@ -3,187 +3,144 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#7a3e00">
-<title>Druckrechner CO₂ – Schankanlage</title>
+<meta name="theme-color" content="#000000">
+<title>Schloss Eggenberg · Druckrechner</title>
 <link rel="manifest" href="manifest.webmanifest">
 <style>
   :root{
-    --bg:#1c1410; --card:#2a201a; --card2:#332720; --accent:#e8a33d;
-    --accent2:#c5781b; --text:#f4ead9; --muted:#b59c82; --line:#46362b;
+    --bg:#0a0a0a; --card:#141414; --card2:#1d1d1d; --line:#2e2e2e;
+    --text:#f3efe7; --muted:#8f8a80; --gold:#c9a24b; --gold2:#e0bd6a;
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
   body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    background:linear-gradient(180deg,#241812,#1c1410 40%);
+    font-family:Georgia,"Times New Roman",serif;
+    background:radial-gradient(120% 60% at 50% 0%,#191919,#0a0a0a 70%);
     color:var(--text);min-height:100vh;
-    padding:env(safe-area-inset-top) 14px calc(env(safe-area-inset-bottom) + 24px);
+    padding:env(safe-area-inset-top) 16px calc(env(safe-area-inset-bottom) + 30px);
   }
-  header{text-align:center;padding:22px 0 6px}
-  header h1{margin:0;font-size:1.45rem;letter-spacing:.3px}
-  header .sub{color:var(--muted);font-size:.85rem;margin-top:4px}
-  .beer{
+  .wrap{max-width:480px;margin:0 auto}
+  header{text-align:center;padding:30px 0 6px}
+  header img.logo{width:min(74%,300px);height:auto;filter:invert(1);display:block;margin:0 auto}
+  .rule{width:54px;height:2px;background:var(--gold);margin:18px auto 4px;opacity:.8}
+  .tagline{text-align:center;color:var(--muted);font-size:.82rem;letter-spacing:3px;
+    text-transform:uppercase;margin-bottom:8px}
+  .card{
     background:var(--card);border:1px solid var(--line);border-radius:16px;
-    margin:14px auto;max-width:520px;overflow:hidden;
-    box-shadow:0 4px 18px rgba(0,0,0,.35);
+    padding:20px 18px;margin-top:18px;box-shadow:0 8px 30px rgba(0,0,0,.5);
   }
-  .beer summary{
-    list-style:none;cursor:pointer;padding:14px 16px;display:flex;
-    align-items:center;justify-content:space-between;gap:10px;
-    background:linear-gradient(90deg,var(--accent2),#8a4f12);
-  }
-  .beer summary::-webkit-details-marker{display:none}
-  .beer summary .name{font-weight:700;font-size:1.05rem;flex:1;display:flex;align-items:center;gap:8px}
-  .beer summary input.title{
-    background:transparent;border:none;color:#fff;font-weight:700;font-size:1.05rem;
-    width:100%;outline:none;border-bottom:1px dashed rgba(255,255,255,.35);padding:2px 0;
-  }
-  .beer summary .result{
-    background:rgba(0,0,0,.28);border-radius:10px;padding:6px 10px;
-    font-weight:700;white-space:nowrap;font-size:1rem;color:#fff;
-  }
-  .beer summary .result small{display:block;font-weight:400;font-size:.62rem;opacity:.8;text-align:right}
-  .body{padding:14px 16px 18px}
-  .field{margin-bottom:14px}
-  .field label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:5px}
-  .field .unit{color:var(--accent);font-weight:600}
+  .field{margin-bottom:16px}
+  .field:last-child{margin-bottom:0}
+  .field label{display:block;font-size:.9rem;color:var(--muted);margin-bottom:6px;letter-spacing:.3px}
+  .field .unit{color:var(--gold);font-weight:bold;font-style:italic}
   input[type=number]{
     width:100%;background:var(--card2);border:1px solid var(--line);color:var(--text);
-    border-radius:10px;padding:11px 12px;font-size:1.05rem;outline:none;
+    border-radius:10px;padding:13px 14px;font-size:1.1rem;font-family:Georgia,serif;outline:none;
   }
-  input[type=number]:focus{border-color:var(--accent)}
-  .toggle{display:flex;gap:8px}
+  input[type=number]:focus{border-color:var(--gold)}
+  .toggle{display:flex;gap:10px}
   .toggle button{
     flex:1;background:var(--card2);border:1px solid var(--line);color:var(--muted);
-    padding:11px;border-radius:10px;font-size:1rem;cursor:pointer;
+    padding:13px;border-radius:10px;font-size:1.05rem;font-family:Georgia,serif;cursor:pointer;
   }
-  .toggle button.active{background:var(--accent);color:#241812;border-color:var(--accent);font-weight:700}
-  .out{display:flex;gap:10px;margin-top:6px}
-  .out .box{
-    flex:1;background:var(--card2);border:1px solid var(--line);border-radius:12px;
-    padding:12px;text-align:center;
+  .toggle button.active{background:var(--gold);color:#0a0a0a;border-color:var(--gold);font-weight:bold}
+  .result{
+    margin-top:22px;text-align:center;background:linear-gradient(180deg,#1c1813,#141210);
+    border:1px solid #3a2f1c;border-radius:16px;padding:22px 14px;
   }
-  .out .box .lbl{font-size:.72rem;color:var(--muted)}
-  .out .box .val{font-size:1.5rem;font-weight:800;margin-top:3px}
-  .out .box.main .val{color:var(--accent)}
-  .out .box .u{font-size:.8rem;color:var(--muted);font-weight:400}
-  .reset{display:block;margin:20px auto 0;background:none;border:1px solid var(--line);
-    color:var(--muted);padding:9px 16px;border-radius:10px;cursor:pointer}
+  .result .lbl{color:var(--muted);font-size:.8rem;letter-spacing:3px;text-transform:uppercase}
+  .result .val{font-size:3.2rem;font-weight:bold;color:var(--gold2);line-height:1.1;margin-top:6px}
+  .result .val span{font-size:1.2rem;color:var(--muted);font-style:italic}
+  .sub{margin-top:14px;color:var(--muted);font-size:.92rem}
+  .sub b{color:var(--text);font-weight:normal}
+  .reset{display:block;margin:22px auto 0;background:none;border:1px solid var(--line);
+    color:var(--muted);padding:10px 18px;border-radius:10px;cursor:pointer;font-family:Georgia,serif}
+  footer{text-align:center;color:var(--muted);opacity:.5;font-size:.72rem;margin-top:26px;letter-spacing:1px}
 </style>
 </head>
 <body>
-<header>
-  <h1>🍺 Druckrechner CO₂</h1>
-  <div class="sub">Betriebsdruck für Schankanlage</div>
-</header>
+<div class="wrap">
+  <header>
+    <img class="logo" src="logo.png" alt="Schloss Eggenberg">
+    <div class="rule"></div>
+    <div class="tagline">Druckrechner · Schankanlage</div>
+  </header>
 
-<div id="app"></div>
+  <div class="card">
+    <div class="field">
+      <label>Temperatur <span class="unit">°C</span></label>
+      <input type="number" inputmode="decimal" step="0.1" id="temp" placeholder="z. B. 10">
+    </div>
+    <div class="field">
+      <label>Höhenmeter <span class="unit">m</span></label>
+      <input type="number" inputmode="decimal" step="0.1" id="hoehe" placeholder="z. B. 1">
+    </div>
+    <div class="field">
+      <label>Leitungslänge <span class="unit">m</span></label>
+      <input type="number" inputmode="decimal" step="0.1" id="laenge" placeholder="z. B. 10">
+    </div>
+    <div class="field">
+      <label>Kühlschlange nutzen?</label>
+      <div class="toggle">
+        <button id="kja">ja</button>
+        <button id="knein" class="active">nein</button>
+      </div>
+    </div>
+  </div>
 
-<button class="reset" onclick="resetAll()">Alle Werte zurücksetzen</button>
+  <div class="result">
+    <div class="lbl">Betriebsdruck</div>
+    <div class="val" id="betrieb">0,52 <span>bar</span></div>
+    <div class="sub">Sättigungsdruck: <b id="sat">0,52 bar</b></div>
+  </div>
+
+  <button class="reset" onclick="resetAll()">Zurücksetzen</button>
+  <footer>Schloss Eggenberg</footer>
+</div>
 
 <script>
-// Formel-Konstanten je Bier (originalgetreu zur Excel, je Position unterschiedlich – Absicht)
-const BEERS = [
-  {satA:0.51, satB:0.076, coilInner:true },   // Bier 1
-  {satA:0.52, satB:0.065, coilInner:false},   // Bier 2
-  {satA:0.52, satB:0.065, coilInner:false},   // Bier 3
-  {satA:0.52, satB:0.065, coilInner:false},   // Bier 4
-];
-const COUNT = BEERS.length;
-const DEF = {name:'', temp:'', hoehe:'', laenge:'', kuehl:false};
+const DEF = {temp:'', hoehe:'', laenge:'', kuehl:false};
+function load(){ try{ return {...DEF, ...(JSON.parse(localStorage.getItem('brau1')||'{}'))}; }catch(e){ return {...DEF}; } }
+function save(){ localStorage.setItem('brau1', JSON.stringify(state)); }
+let state = load();
 
-function load(){ try{ return JSON.parse(localStorage.getItem('brau')||'null'); }catch(e){ return null; } }
-function save(){ localStorage.setItem('brau', JSON.stringify(state)); }
-
-function defaults(){ return Array.from({length:COUNT},(_,i)=>({...DEF, name:'Bier '+(i+1)})); }
-let state = load() || defaults();
-
-// Formel je Bier (Bier 1 weicht ab – wie in der Excel)
-function calc(i){
-  const s = state[i], cfg = BEERS[i];
-  const T = parseFloat(s.temp)||0, H = parseFloat(s.hoehe)||0, L = parseFloat(s.laenge)||0;
-  const kuehl = s.kuehl ? 14 : 0;
-  const sat = cfg.satA + cfg.satB * T;                  // Sättigungsdruck (bar)
-  const coilTerm = cfg.coilInner ? kuehl*0.05 : kuehl;
-  const betrieb = sat + 0.1*H + 0.05*(L + coilTerm);    // Betriebsdruck (bar)
+// Formel (wie Bier 1 in der Excel)
+function calc(){
+  const T = parseFloat(state.temp)||0, H = parseFloat(state.hoehe)||0, L = parseFloat(state.laenge)||0;
+  const kuehl = state.kuehl ? 14 : 0;
+  const sat = 0.51 + 0.076 * T;
+  const betrieb = sat + 0.1*H + 0.05*(L + kuehl*0.05);
   return {sat, betrieb};
 }
-
 function fmt(x){ return x.toLocaleString('de-DE',{minimumFractionDigits:2, maximumFractionDigits:2}); }
-function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
-function render(){
-  const app = document.getElementById('app');
-  app.innerHTML = '';
-  state.forEach((s,i)=>{
-    const r = calc(i);
-    const d = document.createElement('details');
-    d.className = 'beer';
-    if(i===0) d.open = true;
-    d.innerHTML = `
-      <summary>
-        <span class="name"><input class="title" value="${escapeHtml(s.name)}" data-i="${i}" data-k="name"
-               onclick="event.stopPropagation()"></span>
-        <span class="result">${fmt(r.betrieb)} bar<small>Betriebsdruck</small></span>
-      </summary>
-      <div class="body">
-        <div class="field">
-          <label>Temperatur <span class="unit">°C</span></label>
-          <input type="number" inputmode="decimal" step="0.1" value="${s.temp}" data-i="${i}" data-k="temp" placeholder="z.B. 10">
-        </div>
-        <div class="field">
-          <label>Höhenmeter <span class="unit">m</span></label>
-          <input type="number" inputmode="decimal" step="0.1" value="${s.hoehe}" data-i="${i}" data-k="hoehe" placeholder="z.B. 1">
-        </div>
-        <div class="field">
-          <label>Leitungslänge <span class="unit">m</span></label>
-          <input type="number" inputmode="decimal" step="0.1" value="${s.laenge}" data-i="${i}" data-k="laenge" placeholder="z.B. 10">
-        </div>
-        <div class="field">
-          <label>Kühlschlange nutzen?</label>
-          <div class="toggle">
-            <button class="${s.kuehl?'active':''}" data-i="${i}" data-k="kuehl" data-v="1">ja</button>
-            <button class="${!s.kuehl?'active':''}" data-i="${i}" data-k="kuehl" data-v="0">nein</button>
-          </div>
-        </div>
-        <div class="out">
-          <div class="box"><div class="lbl">Sättigungsdruck</div><div class="val">${fmt(r.sat)} <span class="u">bar</span></div></div>
-          <div class="box main"><div class="lbl">Betriebsdruck</div><div class="val">${fmt(r.betrieb)} <span class="u">bar</span></div></div>
-        </div>
-      </div>`;
-    app.appendChild(d);
-  });
-  bind();
+function update(){
+  const r = calc();
+  document.getElementById('betrieb').innerHTML = fmt(r.betrieb) + ' <span>bar</span>';
+  document.getElementById('sat').textContent = fmt(r.sat) + ' bar';
+  document.getElementById('kja').classList.toggle('active', state.kuehl);
+  document.getElementById('knein').classList.toggle('active', !state.kuehl);
+  save();
 }
 
-function bind(){
-  document.querySelectorAll('input[data-k]').forEach(el=>{
-    el.addEventListener('input', ()=>{
-      const i = +el.dataset.i, k = el.dataset.k;
-      state[i][k] = el.value;
-      save();
-      if(k!=='name') render();   // Namensfeld nicht neu rendern → Tastatur-Fokus bleibt
-    });
-  });
-  document.querySelectorAll('button[data-k="kuehl"]').forEach(el=>{
-    el.addEventListener('click', ()=>{
-      state[+el.dataset.i].kuehl = el.dataset.v==='1';
-      save(); render();
-    });
-  });
+function fill(){
+  document.getElementById('temp').value = state.temp;
+  document.getElementById('hoehe').value = state.hoehe;
+  document.getElementById('laenge').value = state.laenge;
+  update();
 }
 
-function resetAll(){
-  if(!confirm('Alle Eingaben zurücksetzen?')) return;
-  state = defaults();
-  save(); render();
-}
+['temp','hoehe','laenge'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', e=>{ state[id]=e.target.value; update(); });
+});
+document.getElementById('kja').addEventListener('click', ()=>{ state.kuehl=true; update(); });
+document.getElementById('knein').addEventListener('click', ()=>{ state.kuehl=false; update(); });
 
-render();
+function resetAll(){ state = {...DEF}; fill(); }
 
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
-}
+fill();
+
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
 </script>
 </body>
 </html>
